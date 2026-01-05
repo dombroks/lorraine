@@ -17,7 +17,7 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val lorraineVersion = "0.2.0"
+val lorraineVersion = "0.2.1"
 
 group = "io.github.dottttt.lorraine"
 version = lorraineVersion
@@ -125,8 +125,8 @@ mavenPublishing {
     pom {
         name.set("KMP Library for work management")
         description.set("Target Android & iOS")
-        inceptionYear.set("2024")
-        url.set("https://github.com/doTTTTT/lorraine")
+        inceptionYear.set("2026")
+        url.set("https://github.com/rteyssandier/lorraine")
 
         licenses {
             license {
