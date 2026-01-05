@@ -117,7 +117,7 @@ tasks.matching { it.name.startsWith("kspKotlinIos") }.configureEach {
 
 android {
     namespace = "fr.modulotech.workmanager"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         minSdk = 24
     }
