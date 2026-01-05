@@ -23,9 +23,6 @@ group = "io.github.dottttt.lorraine"
 version = lorraineVersion
 
 kotlin {
-//    sourceSets.iosMain {
-//        kotlin.srcDir("build/generated/ksp/metadata")
-//    }
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
@@ -105,24 +102,6 @@ dependencies {
         add(it, libs.androidx.room.compiler)
     }
 }
-//dependencies {
-//    ksp(libs.androidx.room.compiler)
-////    kspCommonMainMetadata(libs.androidx.room.compiler)
-////    add("kspAndroid", libs.androidx.room.compiler)
-////    add("kspIosX64", libs.androidx.room.compiler)
-////    add("kspIosArm64", libs.androidx.room.compiler)
-////    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-//}
-
-//tasks.withType<KotlinNativeCompile>().configureEach {
-//    if (name != "kspCommonMainKotlinMetadata") {
-//        dependsOn("kspCommonMainKotlinMetadata")
-//    }
-//}
-
-//tasks.matching { it.name.startsWith("kspKotlinIos") }.configureEach {
-//    dependsOn("kspCommonMainKotlinMetadata")
-//}
 
 android {
     namespace = "fr.modulotech.workmanager"
