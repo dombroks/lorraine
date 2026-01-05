@@ -1,3 +1,5 @@
+rootProject.name = "Lorraine"
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -14,8 +16,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
-rootProject.name = "Lorraine-Sample-App"
 
 include(":lorraine")
 include(":sampleApp")
