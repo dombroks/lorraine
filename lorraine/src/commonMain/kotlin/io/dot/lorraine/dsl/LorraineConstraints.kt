@@ -8,7 +8,7 @@ data class LorraineConstraints internal constructor(
     companion object {
         val NONE = LorraineConstraints(
             requireNetwork = false,
-            false,
+            requireBatteryNotLow = false
         )
     }
 }
