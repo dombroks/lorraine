@@ -2,6 +2,12 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import javax.inject.Inject
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.process.ExecOperations
+import org.gradle.api.file.DirectoryProperty
+import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.android.library)
@@ -17,10 +23,36 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val lorraineVersion = getLatestGitTag()
+@Suppress("UnstableApiUsage")
+abstract class GitVersionValueSource : ValueSource<String, GitVersionValueSource.Parameters> {
+    interface Parameters : ValueSourceParameters {
+        val projectDirectory: DirectoryProperty
+    }
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    override fun obtain(): String {
+        return try {
+            val byteOut = ByteArrayOutputStream()
+            execOperations.exec {
+                workingDir = parameters.projectDirectory.get().asFile
+                commandLine("git", "describe", "--tags", "--abbrev=0")
+                standardOutput = byteOut
+            }
+            byteOut.toString().trim().removePrefix("v")
+        } catch (e: Exception) {
+            "0.0.1" // Fallback version
+        }
+    }
+}
+
+val lorraineVersionProvider = providers.of(GitVersionValueSource::class.java) {
+    parameters.projectDirectory.set(rootProject.layout.projectDirectory)
+}
 
 group = "io.github.dottttt.lorraine"
-version = lorraineVersion
+version = lorraineVersionProvider.get()
 
 kotlin {
 
@@ -32,7 +64,7 @@ kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
@@ -48,7 +80,7 @@ kotlin {
     }
 
     cocoapods {
-        version = lorraineVersion
+        version = lorraineVersionProvider.get()
         summary = "NO_DESCRIPTION"
         homepage = "NO_HOMEPAGE"
         ios.deploymentTarget = "15.0"
@@ -110,8 +142,8 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
@@ -119,7 +151,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.dottttt.lorraine",
         artifactId = "lorraine",
-        version = lorraineVersion
+        version = lorraineVersionProvider.get()
     )
 
     pom {
@@ -150,20 +182,4 @@ mavenPublishing {
 
     publishToMavenCentral()
     signAllPublications()
-}
-
-fun getLatestGitTag(): String {
-    return try {
-        val process = ProcessBuilder("git", "describe", "--tags", "--abbrev=0")
-            .directory(rootProject.projectDir)
-            .start()
-        val tag = process.inputStream
-            .bufferedReader()
-            .readText()
-
-        process.waitFor()
-        tag.trim().removePrefix("v")
-    } catch (e: java.io.IOException) {
-        "0.0.1"
-    }
 }
