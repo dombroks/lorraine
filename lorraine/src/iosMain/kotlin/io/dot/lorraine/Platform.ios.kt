@@ -15,6 +15,7 @@ import io.dot.lorraine.dsl.LorraineRequest
 import io.dot.lorraine.models.ExistingLorrainePolicy
 import io.dot.lorraine.models.LorraineApplication
 import io.dot.lorraine.models.LorraineInfo
+import io.dot.lorraine.logger.DefaultLogger
 import io.dot.lorraine.work.LorraineWorker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -34,6 +35,8 @@ internal class IOSPlatform(
     private val queues: MutableMap<String, NSOperationQueue> = mutableMapOf()
     private val scope = application.scope
 
+    private val logger = application.logger ?: DefaultLogger
+
     val constraints = listOf<ConstraintCheck>(
         ConnectivityCheck(
             scope = scope,
@@ -41,7 +44,8 @@ internal class IOSPlatform(
         ),
         BatteryNotLowCheck(
             scope = scope,
-            onChange = ::constraintChanged
+            onChange = ::constraintChanged,
+            logger = logger
         )
     )
 

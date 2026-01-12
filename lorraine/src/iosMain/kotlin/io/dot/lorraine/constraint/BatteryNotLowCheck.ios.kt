@@ -1,6 +1,7 @@
 package io.dot.lorraine.constraint
 
 import io.dot.lorraine.dsl.LorraineConstraints
+import io.dot.lorraine.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
@@ -16,7 +17,8 @@ import platform.UIKit.UIDeviceBatteryStateDidChangeNotification
 
 internal class BatteryNotLowCheck(
     scope: CoroutineScope,
-    onChange: () -> Unit
+    onChange: () -> Unit,
+    logger: Logger
 ) : ConstraintCheck {
 
     private val observer = AppleBatteryObserver()
@@ -33,7 +35,7 @@ internal class BatteryNotLowCheck(
         )
 
         scope.launch {
-            _value.onEach { println("BatteryNotLowCheck: $it") }.collect { onChange() }
+            _value.onEach { logger.info("BatteryNotLowCheck: $it") }.collect { onChange() }
         }
     }
 
