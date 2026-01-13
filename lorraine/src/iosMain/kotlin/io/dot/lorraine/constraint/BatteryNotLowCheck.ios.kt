@@ -116,11 +116,4 @@ internal interface BatteryObserver : Closeable {
     }
 }
 
-internal val NoOpBatteryObserver = object : BatteryObserver {
-    override fun setListener(listener: BatteryObserver.Listener) {
-        listener.batteryChanged(true)
-    }
-
-    override fun close() {}
-}
 
