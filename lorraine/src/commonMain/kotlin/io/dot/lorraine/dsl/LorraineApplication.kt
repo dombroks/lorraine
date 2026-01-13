@@ -14,9 +14,9 @@ import io.dot.lorraine.db.entity.StringData
 import io.dot.lorraine.db.entity.UnknownData
 import io.dot.lorraine.logger.DefaultLogger
 import io.dot.lorraine.logger.Logger
+import io.dot.lorraine.logger.NoOpLogger
 import io.dot.lorraine.models.LorraineApplication
 import io.dot.lorraine.models.LorraineContext
-import io.dot.lorraine.models.LorraineLogger
 import io.dot.lorraine.work.WorkLorraine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -88,7 +88,7 @@ class LorraineDefinition internal constructor() {
         loggerDefinition = LoggerDefinition().apply(block)
     }
 
-    internal fun createLogger(): LorraineLogger? = loggerDefinition?.createLogger()
+    internal fun createLogger(): Logger = loggerDefinition?.createLogger() ?: NoOpLogger
 
 }
 
@@ -98,10 +98,7 @@ class LoggerDefinition internal constructor() {
     var enable: Boolean = false
     var logger: Logger = DefaultLogger
 
-    internal fun createLogger() = LorraineLogger.create(
-        enable = enable,
-        logger = logger
-    )
+    internal fun createLogger(): Logger = if (enable) logger else NoOpLogger
 }
 
 
