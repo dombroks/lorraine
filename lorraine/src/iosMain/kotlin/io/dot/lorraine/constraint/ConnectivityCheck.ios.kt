@@ -89,11 +89,3 @@ internal interface NetworkObserver : Closeable {
         fun networkChanged(isOnline: Boolean)
     }
 }
-
-internal val NoOpNetworkObserver = object : NetworkObserver {
-    override fun setListener(listener: NetworkObserver.Listener) {
-        listener.networkChanged(true)
-    }
-
-    override fun close() {}
-}

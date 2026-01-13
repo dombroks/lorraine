@@ -19,7 +19,7 @@ Add the dependency to your project using Version Catalogs:
 
 ```toml
 [versions]
-lorraine = "0.0.3" # Use the latest version
+lorraine = "0.2.2" # Use the latest version
 
 [libraries]
 lorraine = { module = "io.github.dottttt.lorraine:lorraine", version.ref = "lorraine" }

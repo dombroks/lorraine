@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import java.io.ByteArrayOutputStream
 
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.kotlin)
 
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
@@ -17,10 +17,36 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val lorraineVersion = "0.2.2"
+@Suppress("UnstableApiUsage")
+abstract class GitVersionValueSource : ValueSource<String, GitVersionValueSource.Parameters> {
+    interface Parameters : ValueSourceParameters {
+        val projectDirectory: DirectoryProperty
+    }
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    override fun obtain(): String {
+        return try {
+            val byteOut = ByteArrayOutputStream()
+            execOperations.exec {
+                workingDir = parameters.projectDirectory.get().asFile
+                commandLine("git", "describe", "--tags", "--abbrev=0")
+                standardOutput = byteOut
+            }
+            byteOut.toString().trim().removePrefix("v")
+        } catch (e: Exception) {
+            "0.0.1" // Fallback version
+        }
+    }
+}
+
+val lorraineVersionProvider = providers.of(GitVersionValueSource::class.java) {
+    parameters.projectDirectory.set(rootProject.layout.projectDirectory)
+}
 
 group = "io.github.dottttt.lorraine"
-version = lorraineVersion
+version = lorraineVersionProvider.get()
 
 kotlin {
 
@@ -29,11 +55,9 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
-        }
+    androidLibrary {
+        namespace = "io.github.dottttt.lorraine"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
     }
 
     listOf(
@@ -48,7 +72,7 @@ kotlin {
     }
 
     cocoapods {
-        version = lorraineVersion
+        version = lorraineVersionProvider.get()
         summary = "NO_DESCRIPTION"
         homepage = "NO_HOMEPAGE"
         ios.deploymentTarget = "15.0"
@@ -103,23 +127,11 @@ dependencies {
     }
 }
 
-android {
-    namespace = "fr.modulotech.workmanager"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-}
-
 mavenPublishing {
     coordinates(
         groupId = "io.github.dottttt.lorraine",
         artifactId = "lorraine",
-        version = lorraineVersion
+        version = lorraineVersionProvider.get()
     )
 
     pom {
