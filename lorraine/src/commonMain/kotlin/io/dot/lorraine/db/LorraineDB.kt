@@ -1,5 +1,6 @@
 package io.dot.lorraine.db
 
+import androidx.room.AutoMigration
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
@@ -11,9 +12,13 @@ import io.dot.lorraine.db.dao.WorkerDao
 import io.dot.lorraine.db.entity.WorkerEntity
 
 @Database(
-    version = 3,
+    version = 4,
     entities = [
         WorkerEntity::class
+    ],
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 3, to = 4)
     ]
 )
 @TypeConverters(
